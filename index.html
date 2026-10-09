@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6b4a2f">
+<title>☕ Coffee Brewing Lab · 咖啡冲煮参数学习与实验计算工具</title>
+<link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#home" data-nav="home">
+      <span class="brand-cup">☕</span>
+      <span class="brand-txt">
+        <b>Coffee Brewing Lab</b>
+        <i>咖啡冲煮参数学习与实验计算工具</i>
+      </span>
+    </a>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-nav="home">首页</button>
+      <button class="tab" data-nav="calc">冲煮参数计算器</button>
+      <button class="tab" data-nav="records">实验记录</button>
+      <button class="tab" data-nav="charts">数据分析</button>
+      <button class="tab" data-nav="knowledge">咖啡知识</button>
+      <button class="tab" data-nav="control">冲煮控制图</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============ 首页 ============ -->
+<section class="view" id="view-home">
+  <div class="hero">
+    <div class="hero-glyph">☕</div>
+    <h1>Coffee Brewing Lab</h1>
+    <p class="hero-sub">咖啡冲煮参数学习与实验计算工具</p>
+    <p class="hero-desc">学习知识 → 设置参数 → 进行计算 → 完成实验 → 保存记录 → 数据分析 → 总结规律。<br class="pc-only">所有结果由公式实时推导，不是固定匹配。</p>
+    <a class="btn primary block hero-cta" data-nav="calc">☕ 开始一次冲煮实验</a>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">核心公式</h3>
+    <ul class="formula-list">
+      <li><span>咖啡粉吸水量</span><code>吸水量 = 咖啡粉量 × 2</code></li>
+      <li><span>咖啡液量</span><code>液量 = 总注水量 − 吸水量</code></li>
+      <li><span>咖啡物质</span><code>物质 = 咖啡液量 × TDS%</code></li>
+      <li><span>TDS 浓度</span><code>TDS = 物质 ÷ 液量 × 100%</code></li>
+      <li><span>萃取率</span><code>萃取率 = 物质 ÷ 粉量 × 100%</code></li>
+      <li><span>化简式</span><code>萃取率 = TDS × 液量 ÷ 粉量</code></li>
+    </ul>
+    <p class="note">本工具按「1 g 咖啡粉吸收 2 g 水」计算。若你的粉吸水量不同，可直接在计算器里填实测咖啡液量反推实际吸水量。</p>
+  </div>
+</section>
+
+<!-- ============ 冲煮参数计算器（合并：计算器 + 反向 + 粉水比） ============ -->
+<section class="view" id="view-calc">
+  <div class="view-head">
+    <h2>① 冲煮参数计算器</h2>
+    <p>填入你已知的参数，点「确认」后由网页算出其余数值——正向、反向、粉水比都在这里一次完成。</p>
+  </div>
+
+  <div class="mode-tag" id="u-mode" hidden></div>
+
+  <div class="card">
+    <p class="grp-label">参数（填已知项，点「确认」后推导其余）</p>
+    <div class="u-grid">
+      <label class="field"><span>咖啡粉量 <i>g</i></span><input type="number" id="u-powder" step="0.1" min="0" placeholder="如 15"></label>
+      <label class="field"><span>总注水量 <i>g</i></span><input type="number" id="u-water" step="0.1" min="0" placeholder="确认后算出"></label>
+      <label class="field"><span>粉水比 <i>1 : N</i></span><input type="number" id="u-ratio" step="0.1" min="0" placeholder="确认后算出"></label>
+      <label class="field"><span>TDS 浓度 <i>%</i></span><input type="number" id="u-tds" step="0.01" min="0" placeholder="如 1.40"></label>
+      <label class="field"><span>萃取率 <i>%</i></span><input type="number" id="u-ey" step="0.1" min="0" placeholder="确认后算出"></label>
+      <label class="field auto"><span>粉液比 <i>推导</i></span><input type="text" id="u-plratio" readonly></label>
+    </div>
+    <p class="note">逻辑：设定「粉量 + 浓度 + 萃取率」会算出总注水量（计划模式）；水量一旦算出即视为"已注水"而锁定——之后你修改浓度，萃取率会随之重算、总注水量保持不变。要重新规划水量，请先清空总注水量再确认。</p>
+
+    <p class="grp-label">冲煮实验参数 <i class="grp-note">（仅记录，不参与浓度 / 萃取率计算）</i></p>
+    <div class="u-grid">
+      <label class="field"><span>注水段数 <i>段</i></span><input type="number" id="u-seg" step="1" min="1" placeholder="如 3"></label>
+      <label class="field"><span>水温 (℃)</span><input type="number" id="u-temp" step="0.5" min="0" placeholder="如 93"></label>
+      <label class="field"><span>研磨度</span><input type="number" id="u-grind" step="0.5" min="0" placeholder="如 15"></label>
+      <label class="field"><span>冲煮时间 <i>分钟</i></span><input type="number" id="u-time" step="0.25" min="0" placeholder="如 3.5"></label>
+    </div>
+
+    <div id="u-judge"></div>
+
+    <div class="alert" id="u-warn" hidden></div>
+    <div class="btn-row">
+      <button class="btn primary" id="u-calc">确认</button>
+      <button class="btn" id="u-reset">清除</button>
+    </div>
+    <button class="btn primary block" id="u-save">保存为实验记录</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3 class="card-title">SCA 冲煮控制图 · 你的位置</h3>
+      <div class="legend-inline">
+        <span><i class="dot-self"></i>本次计算</span>
+        <span><i class="dot-ideal"></i>理想区域</span>
+      </div>
+    </div>
+    <div class="chart-wrap" id="calc-control"></div>
+    <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+    <p class="note">对角线是粉水比（1:12 ~ 1:22）。落在同一根对角线上，说明粉水比相同；往右上走＝萃取更多，往左上走＝浓度更高。</p>
+    <p class="note">落点位置按控制图的体积口径校正（萃取率 ÷ 0.963），所以图上位置与计算器里的萃取率数值会略有差异——这是为对齐 SCA 控制图。</p>
+  </div>
+
+</section>
+
+<!-- ============ 实验记录 ============ -->
+<section class="view" id="view-records">
+  <div class="view-head">
+    <h2>② 实验记录</h2>
+    <p>这里只放<b>你自己做的实验</b>。数据保存在本机浏览器里（localStorage），可导出 JSON 备份。</p>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <button class="btn primary" id="rec-add">+ 新增记录</button>
+      <button class="btn" id="rec-export">导出 / 备份</button>
+      <button class="btn" id="rec-excel">导出 Excel</button>
+      <label class="btn file-btn">选择文件导入<input type="file" id="rec-import" accept=".json,application/json,text/plain"></label>
+      <button class="btn" id="rec-paste">粘贴文本导入</button>
+      <button class="btn danger" id="rec-clear">清空全部</button>
+      <span class="toolbar-info" id="rec-count"></span>
+    </div>
+    <p class="io-hint">换手机 / 用微信打开？先用「导出 / 备份」复制文本，再到另一处「粘贴文本导入」即可迁移数据。微信内置浏览器直接选文件常被限制，粘贴最稳。</p>
+
+    <div class="filters">
+      <label class="field sm wide"><span>搜索（豆名 / 感官 / 备注）</span><input type="search" id="f-kw" placeholder="例如：耶加、酸、理想"></label>
+      <label class="field sm"><span>水温 ℃ 区间</span><span class="range-pair"><input type="number" id="f-temp-min" placeholder="最低"><i>–</i><input type="number" id="f-temp-max" placeholder="最高"></span></label>
+      <label class="field sm"><span>粉水比区间</span><span class="range-pair"><input type="number" id="f-ratio-min" placeholder="最低" step="0.1"><i>–</i><input type="number" id="f-ratio-max" placeholder="最高" step="0.1"></span></label>
+      <label class="field sm"><span>研磨度区间</span><span class="range-pair"><input type="number" id="f-grind-min" placeholder="最低"><i>–</i><input type="number" id="f-grind-max" placeholder="最高"></span></label>
+      <label class="field sm"><span>水质</span><select id="f-water"><option value="">全部</option><option>净化水</option><option>饮用纯净水</option><option>矿泉水</option><option>自来水</option><option>其他</option></select></label>
+      <label class="field sm"><span>冲煮时间</span><select id="f-time"><option value="">全部</option><option value="lt3">3 分钟以内</option><option value="3to4">3–4 分钟</option><option value="gt4">4 分钟以上</option></select></label>
+      <label class="field sm sort"><span>排序</span><select id="f-sort"><option value="date-desc">日期（新→旧）</option><option value="date-asc">日期（旧→新）</option><option value="ey-desc">萃取率（高→低）</option><option value="tds-desc">TDS（高→低）</option><option value="temp-desc">水温（高→低）</option></select></label>
+      <button class="btn sm" id="f-reset">重置筛选</button>
+    </div>
+
+    <div id="cmp-panel" hidden></div>
+    <div id="rec-list"></div>
+  </div>
+</section>
+
+<!-- ============ 数据分析 ============ -->
+<section class="view" id="view-charts">
+  <div class="view-head">
+    <h2>③ 数据分析</h2>
+    <p>只统计你自己的实验记录。记录越多，这些趋势图越有参考价值；每个点都可以悬停/点击查看明细。</p>
+  </div>
+
+  <div class="empty" id="chart-empty" hidden>还没有实验记录。到「① 冲煮参数计算器」算完点「保存为实验记录」，这些图表会随你的记录自动长出来。</div>
+
+  <div class="chart-grid" id="chart-grid">
+    <div class="card chart-card">
+      <h3 class="card-title">图表 1 · 水温 vs 萃取率</h3>
+      <div class="chart-wrap" id="ch1"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">水温提高 → 萃取率提高。70 / 80 / 90 ℃ 三组数据几乎是直线关系。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 2 · 水温 vs TDS</h3>
+      <div class="chart-wrap" id="ch2"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">水温提高 → TDS 提高，杯感从「稀、酸」走向「接近理想」。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 3 · 粉水比 vs TDS</h3>
+      <div class="chart-wrap" id="ch3"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">粉水比越大（水越多）→ 浓度越低。1:10 明显高浓，1:20 明显偏淡。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 4 · 粉水比 vs 萃取率</h3>
+      <div class="chart-wrap" id="ch4"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">粉水比越大 → 萃取率反而可能升高。所以不能只看浓度，要 TDS + 萃取率一起看。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 5 · 研磨度 vs 萃取率</h3>
+      <div class="chart-wrap" id="ch5"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">研磨越细（数值越小）→ 萃取越充分、萃取率越高。93 ℃ 条件下的三组数据。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 6 · 研磨度 vs TDS</h3>
+      <div class="chart-wrap" id="ch8"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">研磨越细 → 萃取越充分 → 浓度 TDS 通常也越高。和「研磨度 vs 萃取率」一起看，能区分是浓度变了还是萃取程度变了。</p>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">图表 7 · 冲煮时间 vs 萃取率</h3>
+      <div class="chart-wrap" id="ch6"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">时间越长 → 萃取越多。把时间填进你的记录里，这张图就会丰富起来。</p>
+    </div>
+    <div class="card chart-card wide">
+      <h3 class="card-title">图表 8 · TDS × 萃取率 二维控制图（全部数据点）</h3>
+      <div class="chart-wrap" id="ch7"></div>
+      <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+      <p class="chart-note">一眼看清所有实验落在哪个风味分区：高浓低萃在左上，理想区域在中上，淡杯在下方。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 咖啡知识 ============ -->
+<section class="view" id="view-knowledge">
+  <div class="view-head">
+    <h2>④ 咖啡知识</h2>
+    <p>下面这些结论都来自你给出的实验与观察，按主题整理，可直接作为冲煮时的对照表。</p>
+  </div>
+
+  <div class="know-grid">
+    <h3 class="know-group">基础概念</h3>
+    <article class="card know">
+      <h3>TDS 与萃取率，到底在看什么</h3>
+      <p><b>TDS（浓度）</b>看「这杯有多浓」：咖啡液里可溶物质的比例。<br><b>萃取率</b>看「从粉里拿走了多少」：粉中物质被萃取出来的比例。</p>
+      <ul>
+        <li>两杯可以浓度相同、萃取率差很多：加浓的方法（少水）不等于萃得更多。</li>
+        <li>判断一杯好不好，先看萃取率是否落在理想区间（18–22%），再看浓度是否符合口味偏好。</li>
+      </ul>
+      <div class="mini-formula">TDS = 物质 ÷ 液量 × 100%　·　萃取率 = 物质 ÷ 粉量 × 100%</div>
+    </article>
+
+    <article class="card know">
+      <h3>浓度管口感，萃取率管酸·甜·苦</h3>
+      <p>这两个量管的是不同的感受，调的时候别混：</p>
+      <ul>
+        <li><b>浓度（TDS）</b>管「口感的厚薄 / 强弱」：浓度高，body 重、味道强；浓度低，清爽、单薄。</li>
+        <li><b>萃取率</b>管「酸 / 甜 / 苦的平衡」：萃不足→偏酸、尖、空；萃过头→偏苦、涩、发木。</li>
+      </ul>
+      <p class="concl">烘焙度也影响口味偏好：<b>深烘豆浓度高一点更好喝</b>（低浓会显得寡淡、酸感突兀）；<b>浅烘豆相反</b>，浓度低一点更清爽、更能喝到花果酸香。所以「理想浓度」不是固定值，要看豆子。</p>
+    </article>
+
+    <h3 class="know-group">冲煮参数</h3>
+    <article class="card know">
+      <h3>粉水比：先固定它，再谈别的</h3>
+      <p>粉水比决定了「有多少水可用来装物质」，是稀/浓的主因，也间接影响萃取率。</p>
+      <ul>
+        <li>1:10 → 22.5 g 粉 / 225 g 水：TDS 2.03%、萃取率 16.86% —— <b>高浓低萃</b>，浓但没萃够，容易又苦又空。</li>
+        <li>1:15 → 15 g / 229 g：TDS 1.41%、萃取率 19% —— 接近理想杯。</li>
+        <li>1:20 → 11.25 g / 227 g：TDS 1.06%、萃取率 19.8% —— 淡，但萃取率并不低，可以接受。</li>
+      </ul>
+      <p class="concl">结论：粉水比越低浓度越高，但不代表萃取率更高；粉水比提高浓度下降，萃取率却可能提高。</p>
+    </article>
+
+    <article class="card know">
+      <h3>水温：最容易见效的那根旋钮</h3>
+      <ul>
+        <li>70 ℃：TDS 1.12%、萃取率 16.3%，比较稀、比较酸。</li>
+        <li>80 ℃：TDS 1.22%、萃取率 17.8%，比 70 ℃ 稍浓，仍偏酸。</li>
+        <li>90 ℃：TDS 1.26%、萃取率 18.3%，接近理想杯。</li>
+      </ul>
+      <p class="concl">水温提高 → TDS 提高 → 萃取率提高。想在不改研磨的前提下加萃取，先升水温。</p>
+    </article>
+
+    <article class="card know">
+      <h3>研磨度：影响幅度最大</h3>
+      <p>93 ℃ 条件下：</p>
+      <ul>
+        <li>研磨度 2（细）：15 g / 225 g，TDS 1.63%、萃取率 21% —— 萃取够高，但浓度已偏高（TDS 超 1.45% 上限）。</li>
+        <li>研磨度 15：16 g / 225 g，TDS 1.48%、萃取率 18% —— 萃取刚到理想下限，浓度仍略偏高。</li>
+        <li>研磨度 28（粗）：16 g / 226.7 g，TDS 1.41%、萃取率 17% —— 浓度合适，但萃取略偏低（在 18% 下限之下）。</li>
+      </ul>
+      <p class="concl">研磨越细 → 萃取越充分 → TDS 与萃取率通常越高。但过细容易堵塞、通道效应，反而出现苦涩与不均。</p>
+    </article>
+
+    <article class="card know">
+      <h3>时间：越久萃得越多，但要配合观察</h3>
+      <p>用 <b>聪明杯（浸泡式）</b> 做了 3 次实验，下面说的「时间」都只算 <b>泡水（浸泡）时间</b>，不含开阀后的滴滤时间：</p>
+      <div class="table-scroll">
+        <table class="tbl">
+          <thead><tr><th>浸泡时间</th><th>粉量</th><th>注水量</th><th>TDS（浓度）</th><th>萃取率</th></tr></thead>
+          <tbody>
+            <tr><td>2 分钟</td><td class="num">14.8 g</td><td class="num">222 g</td><td class="num">1.25%</td><td class="num">16.8%</td></tr>
+            <tr><td>4 分钟</td><td class="num">14.8 g</td><td class="num">223.6 g</td><td class="num">1.36%</td><td class="num">18.4%</td></tr>
+            <tr><td>8 分钟</td><td class="num">14.9 g</td><td class="num">240 g</td><td class="num">1.30%</td><td class="num">19.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note-sm">2 分钟偏酸、萃取不足；4 分钟和 8 分钟都接近理想杯，两者浓度与萃取率差别不大。</p>
+      <p class="concl">浸泡 4 分钟和 8 分钟杯感与数据都很接近，说明超过某个时长后再延长，收益很小；2 分钟则明显偏酸、没萃够。注意这里记的是浸泡时间，聪明杯还要额外算上开阀滴滤的时间。</p>
+    </article>
+
+    <h3 class="know-group">注水与搅拌</h3>
+    <article class="card know">
+      <h3>搅拌：人为加萃取的手段</h3>
+      <ul>
+        <li>冲煮过程中搅拌会提高萃取程度，主要表现为 TDS 提高、萃取率提高。</li>
+        <li>搅拌要记录下来才能比较：<b>是否搅拌 / 次数 / 时间点 / 强度 / 方式</b>（画圈、切拌、旋转摇晃）。</li>
+        <li>搅拌过多会同时带出涩感，通常用来补救偏淡或萃取不足的情况。</li>
+      </ul>
+      <div class="mini-formula">记录建议：搅拌＝有/无，另记 次数 · 时间点 · 强度 · 手法</div>
+    </article>
+
+    <article class="card know">
+      <h3>第一段注水（闷蒸）：量对了比守时间重要</h3>
+      <p>目的：让咖啡粉充分湿润、排气膨胀，建立均匀的水流通路，为后面的注水打好底。</p>
+      <ul>
+        <li><b>用量基准＝粉量的 2 倍</b>：15 g 粉 → <b>30 g 水</b>。常见范围是 <b>2–3 倍</b>；2.5 倍（15 g → 约 38 g）是很多手冲配方的常用值。</li>
+        <li><b>太少不行</b>：低于 2 倍容易留下干粉团，那部分粉后面很难再被均匀萃取，整体偏酸、不匀。</li>
+        <li><b>太多也不行</b>：超过 3 倍，水会顺着粉层缝隙<b>提前漏下去</b>——这一段就从「闷蒸」变成了「第一次正常注水」，粉床还没建好就先流走，后面的注水节奏会乱，萃取反而更不稳。研磨偏粗时最明显，能直接看到壶底。</li>
+        <li><b>手法</b>：从中心向外画小圈，8–12 秒内注完；轻晃一下让粉床平整（别用力搅）。</li>
+        <li><b>时间</b>：等 <b>30–45 秒</b>（很新鲜的豆可到 45–60 秒）。看表面<b>不再剧烈冒泡、开始塌陷</b>就可以继续，不必死守某个秒数；超过 60 秒通常说明闷蒸水偏多或研磨太粗，而不是「多萃了」。</li>
+      </ul>
+      <div class="mini-formula">闷蒸水量 ≈ 粉量 × 2（常用范围 2–3 倍）　·　闷蒸时间 ≈ 30–45 秒</div>
+      <p class="concl">一句话：第一段的职责是「打湿 + 排气」，不是「提前萃取」。水量刚好能打湿全部粉、又不至于提前流走，就是对的量。</p>
+    </article>
+
+    <article class="card know">
+      <h3>分段注水：用「段数」和「时间」把咖啡萃得更足</h3>
+      <p>分段注水＝把总水量拆成 <b>3–5 段</b>（还可以更多），每段之间停顿一下，<b>让粉床排掉一部分水再注下一段</b>。与之相对的是「一刀流」：闷蒸之后一口气连续注完。</p>
+      <ul>
+        <li><b>段数越多，萃取率越高</b>——实测大约提高 <b>1–3 个百分点</b>，杯感也更均匀（不是翻倍的差别）。</li>
+        <li><b>为什么？两个原因</b>：① 每一段之间的停顿，让水和粉的<b>接触时间更长</b>；② 更关键的一条——水在粉外积浓之后，萃取就会变慢。<b>分段让已经变浓的液体先流走、再注入新水，重新拉开「粉内浓、粉外淡」的浓度差</b>，萃取就一直维持在高效率。</li>
+        <li><b>附带好处</b>：每一段都重新搅动一次粉床，把细粉重新悬浮起来，减少通道效应 → 萃取更均匀、杯感更干净。</li>
+        <li><b>对「浓度」的影响要说清楚</b>：同一粉水比下，萃取率提高，浓度（TDS）也会跟着略升；但<b>真正决定浓度的仍然是粉水比</b>。想明显变浓，动比例（少水或加粉）比多分段有效得多。</li>
+        <li><b>一个可用的时间轴</b>（15 g 粉、约 240 g 水、粉水比 1:16）：闷蒸 30 g 等 30–45 秒 → 第 1 段注到 120 g（缓慢画圈，约 15 秒）→ 等粉床露出一半 → 第 2 段注到 210 g → 再等 → 第 3 段注到 240 g 收尾。总时间大约落在 <b>2:45–3:15</b>。</li>
+        <li><b>总时间不是越长越好</b>：一般 <b>2:30–3:30</b> 比较稳。<b>快于 2:30</b> 通常说明研磨偏粗（萃取不足）；<b>慢于 4:00</b> 通常说明研磨偏细（容易过萃发苦）。所以「延长注水时间」要配合研磨一起调，不能硬拖。</li>
+        <li><b>关于把闷蒸拉到 1 分钟</b>：只有豆子非常新鲜（排气旺）时才需要，常规 30–45 秒就够。把闷蒸泡到 1 分钟以上，往往只是让水变凉、甚至已经漏下去——想加萃取，<b>多切几段比泡久闷蒸更有效</b>。</li>
+        <li><b>进阶参考</b>：Tetsu Kasuya 的 <b>4:6 法</b>把水分成 5 段——<b>前 2 段调酸甜平衡，后 3 段调强度</b>，是「用分段控制结果」最成熟的现成配方。</li>
+      </ul>
+      <div class="mini-formula">一刀流 → 干净、简单；3–5 段 → 萃取更高、更均匀　·　想改浓度动比例，想加萃取分段数</div>
+      <p class="concl">一句话：不改粉水比、又想把咖啡萃得更足更匀，就<b>多分几段、并给足接触时间</b>；想改变浓度，去动粉水比。</p>
+    </article>
+
+    <article class="card know">
+      <h3>记忆注水：看粉床状态，而不是背动作</h3>
+      <p>冲煮时要一直观察粉床，而不是机械重复固定动作。深烘焙豆尤其明显：</p>
+      <ul>
+        <li>气泡多、膨胀明显，气泡会干扰观察（判断水位和粉层状态更难）。</li>
+        <li>如果注水方式不合理，容易反复用掉大量水。</li>
+        <li>第一段注水过大可能把粉层压实，粉层结构被破坏后，后续水流会乱。</li>
+      </ul>
+      <p class="concl">原则：根据粉床状态决定这一勺水怎么注，而不是「到第几段就注多少」。</p>
+    </article>
+
+    <h3 class="know-group">水质</h3>
+    <article class="card know">
+      <h3>水质：三类水的实际表现</h3>
+      <ul>
+        <li><b>饮用纯净水</b>（如娃哈哈）：口感比较柔和；对深烘焙豆能在一定程度上平衡杂味，整体更顺口。</li>
+        <li><b>矿泉水</b>：风味更复杂；对浅烘焙豆能增加风味复杂度，改善浅烘有时偏单薄的问题，但矿物质也可能带来额外风味。</li>
+        <li><b>净化水</b>：表现介于两者之间。</li>
+      </ul>
+      <p class="concl">水不是背景板。同样豆子、同样参数，换水就能改变风味走向——所以记录里一定要写明用了什么水。</p>
+    </article>
+
+    <article class="card know">
+      <h3>水的酸碱性：说「碱度」更准确</h3>
+      <p>咖啡和茶本身通常呈酸性。水的 pH 与矿物质组成，会影响咖啡酸质的表现。</p>
+      <ul>
+        <li>碱性缓冲能力（碱度）较强的水，可以降低或缓和咖啡中的酸感。</li>
+        <li>准确表述是：<b>水的碱度（缓冲能力）会影响咖啡酸质的表现</b>，而不是「碱性水把咖啡里的酸中和掉了」。</li>
+        <li>实测酸感变化，更多来自碱度对酸的缓冲，而不只是 pH 数字本身。</li>
+      </ul>
+      <div class="mini-formula">记录建议：水质 + 碱度/矿化程度（能测则测），比只写「矿泉水」更有价值</div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ 冲煮控制图（互动） ============ -->
+<section class="view" id="view-control">
+  <div class="view-head">
+    <h2>⑤ 冲煮控制图 · 互动解读</h2>
+    <p>把鼠标移到图上任意一块区域（手机点一下），右侧会立刻显示这块区域的含义和该往哪调；移到斜线上，会告诉你是几比几的粉水比。</p>
+  </div>
+
+  <div class="card">
+    <div class="cc-layout">
+      <div class="chart-wrap" id="cc-chart"></div>
+      <div class="cc-panel" id="cc-info"></div>
+    </div>
+    <p class="scroll-hint">← 左右滑动查看完整图表 →</p>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">这张图怎么看</h3>
+    <ul class="plain-list">
+      <li><b>横轴＝萃取率</b>（14% → 26%）：从粉里拿走了多少。越往右，萃取得越多。</li>
+      <li><b>纵轴＝TDS 浓度</b>（0.80% → 1.80%）：这杯有多浓。越往上，越浓。<b>横轴和纵轴是两回事</b>——可以很浓却没萃够，也可以很淡却萃得很足。</li>
+      <li><b>一族斜线＝粉水比</b>（1:12 ~ 1:22）：同一条斜线上的点，粉水比相同。沿斜线往右上走＝同比例下萃取更多；换到更平缓的一条线＝水加多了，浓度随之下降。</li>
+      <li><b>蓝色方框＝理想区域</b>（萃取率 18–22%、TDS 1.15–1.45%）：浓度与萃取都适中的那一块。</li>
+      <li><b>调整的两条总规则</b>：<b>比例（水多水少）主要调浓度</b>——水多米多、浓度就低；<b>研磨 / 水温 / 时间主要调萃取率</b>——越细、越热、越久，萃得越多。沿斜线移动＝只改萃取变量、不动比例；换到另一条斜线＝改了比例。</li>
+      <li><b>一次只改一个变量</b>，否则你不知道是哪一项在起作用。</li>
+    </ul>
+    <p class="note">依据：SCA 冲煮控制图（源自 Lockhart 1957 年在 Coffee Brewing Institute 的研究），理想区间为萃取率 18–22%、浓度 1.15–1.35%；本工具的浓度区间按你自己的实验口径取 1.15–1.45%。这张框是经验参考、不是判决——确实有人偏爱框外的风味。</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <p>Coffee Brewing Lab · 咖啡冲煮学习 + 实验记录 + 参数计算 + 数据分析工具</p>
+  <p class="tiny">所有计算结果由公式实时推导。数据保存在本机浏览器，不上传任何服务器。粉吸水量按 2 g/g 计算。</p>
+</footer>
+
+<!-- 记录编辑弹窗 -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-bg" data-close="1"></div>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modal-title">新增实验记录</h3>
+      <button class="icon-btn" data-close="1" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-grid">
+        <label class="field"><span>日期</span><input type="date" id="m-date"></label>
+        <label class="field"><span>咖啡豆名称</span><input type="text" id="m-bean" placeholder="例如：耶加雪菲 水洗"></label>
+        <label class="field"><span>烘焙度</span>
+          <select id="m-roast"><option value=""></option><option>浅烘</option><option>中浅烘</option><option>中烘</option><option>中深烘</option><option>深烘</option></select>
+        </label>
+        <label class="field"><span>咖啡粉量 (g)</span><input type="number" id="m-powder" step="0.1" min="0"></label>
+        <label class="field"><span>总注水量 (g)</span><input type="number" id="m-water" step="0.1" min="0"></label>
+        <label class="field"><span>水温 (℃)</span><input type="number" id="m-temp" step="0.5" min="0"></label>
+        <label class="field"><span>冲煮时间（分钟）</span><input type="number" id="m-time" step="0.25" min="0" placeholder="例如 3.5"></label>
+        <label class="field"><span>研磨度</span><input type="number" id="m-grind" step="0.5" min="0"></label>
+        <label class="field"><span>注水段数</span><input type="number" id="m-seg" step="1" min="1" placeholder="如 3"></label>
+        <label class="field"><span>第一段注水量 (g)</span><input type="number" id="m-first" step="1" min="0"></label>
+        <label class="field"><span>第一段用时 (秒)</span><input type="number" id="m-firsttime" step="1" min="0"></label>
+        <label class="field"><span>是否搅拌</span>
+          <select id="m-stir"><option value="no">无</option><option value="yes">有</option></select>
+        </label>
+        <label class="field"><span>搅拌次数</span><input type="number" id="m-stircount" step="1" min="0"></label>
+        <label class="field"><span>搅拌方式 / 强度</span><input type="text" id="m-stirstyle" placeholder="例如：画圈 3 次，轻柔"></label>
+        <label class="field"><span>水质</span>
+          <select id="m-watertype"><option value=""></option><option>净化水</option><option>饮用纯净水</option><option>矿泉水</option><option>自来水</option><option>其他</option></select>
+        </label>
+        <label class="field"><span>TDS (%)</span><input type="number" id="m-tds" step="0.01" min="0"></label>
+        <label class="field"><span>萃取率 (%)</span><input type="number" id="m-ey" step="0.1" min="0"></label>
+        <label class="field"><span>咖啡液量 (g)</span><input type="number" id="m-beverage" step="0.1" min="0" placeholder="留空自动计算"></label>
+        <label class="field"><span>咖啡物质 (g)</span><input type="number" id="m-substance" step="0.01" min="0" placeholder="留空自动计算"></label>
+      </div>
+      <div class="recalc" id="m-recalc"></div>
+      <label class="field"><span>感官描述</span><textarea id="m-sensory" rows="2" placeholder="例如：酸度明亮、body 中等、尾韵偏短"></textarea></label>
+      <label class="field"><span>实验结论</span><input type="text" id="m-conclusion" placeholder="例如：接近理想杯 / 高浓低萃"></label>
+      <label class="field"><span>备注</span><textarea id="m-note" rows="2"></textarea></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger ghost" id="m-delete" hidden>删除</button>
+      <span class="spacer"></span>
+      <button class="btn" data-close="1">取消</button>
+      <button class="btn primary" id="m-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导出 / 备份 弹窗 -->
+<div class="modal" id="io-export-modal" hidden>
+  <div class="modal-bg" data-close="1"></div>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3>导出 / 备份 JSON</h3>
+      <button class="icon-btn" data-close="1" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="io-tip">下面是当前全部实验记录的 JSON 文本。点「复制全部」可粘到微信「文件传输助手」或手机备忘录；电脑上也可点「下载文件」存成 .json。</p>
+      <textarea id="io-export-text" class="io-text" readonly rows="12"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="io-copy">复制全部</button>
+      <button class="btn" id="io-download">下载文件</button>
+      <span class="spacer"></span>
+      <button class="btn" data-close="1">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 粘贴导入 弹窗 -->
+<div class="modal" id="io-import-modal" hidden>
+  <div class="modal-bg" data-close="1"></div>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3>粘贴文本导入</h3>
+      <button class="icon-btn" data-close="1" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="io-tip">把导出的 JSON 文本（可来自「文件传输助手」或备忘录）粘贴到下面，点「导入」。相同 id 的记录会更新、不重复；新记录会追加。</p>
+      <textarea id="io-import-text" class="io-text" rows="12" placeholder="在此粘贴 JSON 文本…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close="1">取消</button>
+      <button class="btn primary" id="io-import-go">导入</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<script src="app.js?v=4"></script>
+</body>
+</html>
